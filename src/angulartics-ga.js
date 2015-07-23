@@ -108,5 +108,25 @@ angular.module('angulartics.google.analytics', ['angulartics'])
     $analyticsProvider.settings.ga.userId = userId;
   });
 
+  $analyticsProvider.registerTrackTiming(function (properties) {
+
+    if (window.ga) {
+
+      var eventOptions = {
+        page: properties.page || window.location.hash.substring(1) || window.location.pathname,
+        userId: $analyticsProvider.settings.ga.userId
+      };
+
+      ga('send', 'timing', properties.category, action, properties.variable, properties.time, properties.opt_label, eventOptions);
+      angular.forEach($analyticsProvider.settings.ga.additionalAccountNames, function (accountName){
+        ga(accountName +'.send', 'timing', properties.category, action, properties.variable, properties.time, properties.opt_label, eventOptions);
+      });
+    }
+
+    else if (window._gaq) {
+      _gaq.push(['_trackTiming', properties.category, action, properties.variable, properties.time, properties.opt_label, properties.opt_sampleRate]);
+    }
+  });
+
 }]);
 })(angular);
